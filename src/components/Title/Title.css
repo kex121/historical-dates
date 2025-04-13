@@ -1,0 +1,18 @@
+.title-container {
+  position: absolute;
+  top: 17%;
+  left: 24%;
+  z-index: 1;
+  width: auto;
+  max-width: min(25vw, 400px);
+}
+
+.title {
+  font-family: 'PT Sans', sans-serif;
+  font-weight: 700;
+  font-size: clamp(28px, 2.6vw, 48px);
+  line-height: 1.2;
+  color: #42567A;
+  margin: 0;
+  padding: 0;
+}

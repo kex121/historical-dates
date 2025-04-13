@@ -1,0 +1,54 @@
+.diagram-lines {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+}
+
+.diagram-line {
+  stroke: #42567A;
+  opacity: 0.1;
+}
+
+.diagram-circle {
+  fill: none;
+  stroke: #42567A;
+  opacity: 0.2;
+}
+
+.diagram-dot {
+  fill: #42567A;
+}
+
+.diagram-dot.clickable {
+  cursor: pointer;
+  pointer-events: all;
+}
+
+.diagram-dot-selected {
+  pointer-events: none;
+}
+
+.diagram-dot-number {
+  fill: #42567A;
+  font-family: 'PT Sans', sans-serif;
+  font-size: 20px;
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+}
+
+.theme-label-container {
+  font-family: 'PT Sans', sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 1.5;
+  color: #42567A;
+  white-space: nowrap;
+  text-align: left;
+  pointer-events: none;
+}
+
+.gradient-line {
+  fill: url(#blueToRed);
+}
