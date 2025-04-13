@@ -1,0 +1,25 @@
+.diagram-lines {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+}
+
+.diagram-line {
+  stroke: #42567A;
+  opacity: 0.1;
+}
+
+.diagram-circle {
+  fill: none;
+  stroke: #42567A;
+  opacity: 0.2;
+}
+
+.diagram-dot {
+  fill: #42567A;
+}
+
+.gradient-line {
+  fill: url(#blueToRed);
+}
