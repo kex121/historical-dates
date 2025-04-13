@@ -1,0 +1,34 @@
+.timeline-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.background-rectangle {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #F4F5F9;
+}
+
+.line {
+  position: absolute;
+  stroke: #42567A;
+  opacity: 0.1;
+}
+
+.horizontal-line {
+  width: 100%;
+  height: 1px;
+  background-color: #42567A;
+  opacity: 0.1;
+}
+
+.vertical-line {
+  width: 1px;
+  height: 100%;
+  background-color: #42567A;
+  opacity: 0.1;
+} 
