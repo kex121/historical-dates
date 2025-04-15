@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-import { type Theme } from '@utils/index';
+import { themes, type Theme } from '@utils/index';
 
 import DiagramLines from '../DiagramLines';
 import Title from '../Title';
+import Navigation from '../Navigation';
 
 import './timeline.css';
 
@@ -34,11 +35,23 @@ const Timeline: React.FC = () => {
     setSelectedTheme(theme);
   };
 
+  const handlePrevTheme = () => {
+    const currentIndex = themes.findIndex((t) => t.id === selectedTheme?.id);
+    const prevIndex = (currentIndex - 1 + themes.length) % themes.length;
+    setSelectedTheme(themes[prevIndex]);
+  };
+
+  const handleNextTheme = () => {
+    const currentIndex = themes.findIndex((t) => t.id === selectedTheme?.id);
+    const nextIndex = (currentIndex + 1) % themes.length;
+    setSelectedTheme(themes[nextIndex]);
+  };
+
   return (
     <div className="timeline-container" ref={containerRef}>
       <div className="background-rectangle"></div>
       <Title />
-
+      <Navigation selectedTheme={selectedTheme} onPrev={handlePrevTheme} onNext={handleNextTheme} />
       {dimensions.width > 0 && dimensions.height > 0 && (
         <DiagramLines
           width={dimensions.width}

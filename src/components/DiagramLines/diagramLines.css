@@ -18,6 +18,7 @@
 
 .diagram-dot {
   fill: #42567A;
+  transition: r 0.3s ease-out, fill 0.3s ease-out, stroke 0.3s ease-out, stroke-width 0.3s ease-out;
 }
 
 .diagram-dot.clickable {
@@ -25,8 +26,11 @@
   pointer-events: all;
 }
 
-.diagram-dot-selected {
-  pointer-events: none;
+.diagram-dot-selected,
+.diagram-dot.clickable:hover {
+  fill: #F4F5F9;
+  stroke: rgba(48, 62, 88, 0.5);
+  stroke-width: 1;
 }
 
 .diagram-dot-number {
@@ -36,6 +40,13 @@
   text-anchor: middle;
   dominant-baseline: central;
   pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease-out;
+}
+
+.diagram-dot-selected + .diagram-dot-number,
+.diagram-dot.clickable:hover + .diagram-dot-number {
+  opacity: 1;
 }
 
 .theme-label-container {
@@ -47,6 +58,7 @@
   white-space: nowrap;
   text-align: left;
   pointer-events: none;
+  opacity: 0;
 }
 
 .gradient-line {

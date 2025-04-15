@@ -44,73 +44,83 @@ const DiagramLines: React.FC<DiagramLinesProps> = ({
   const svgRef = useRef<SVGSVGElement>(null);
   const circlesRefs = useRef<(SVGCircleElement | null)[]>([]);
   const textsRefs = useRef<(SVGTextElement | null)[]>([]);
+  const labelRef = useRef<HTMLDivElement>(null);
 
-  const handleDotMouseEnter = (dotId: number) => {
-    if (!selectedTheme || selectedTheme.id !== dotId) {
-      setHoveredDotId(dotId);
+  const animateDot = (index: number, isSelected: boolean, isHovered: boolean) => {
+    const circle = circlesRefs.current[index];
+    const text = textsRefs.current[index];
+
+    if (circle) {
+      gsap.to(circle, {
+        r:
+          isSelected || isHovered
+            ? isSelected
+              ? selectedDotRadius
+              : selectedDotRadius * 0.9
+            : dotRadius,
+        fill: isSelected || isHovered ? '#F4F5F9' : '#42567A',
+        stroke: isSelected || isHovered ? 'rgba(48, 62, 88, 0.5)' : 'transparent',
+        strokeWidth: isSelected || isHovered ? 1 : 0,
+        duration: 0.3,
+        ease: 'power2.out',
+      });
+    }
+
+    if (text) {
+      gsap.to(text, {
+        opacity: isSelected || isHovered ? 1 : 0,
+        duration: 0.3,
+        ease: 'power2.out',
+      });
     }
   };
 
-  const handleDotMouseLeave = () => {
-    setHoveredDotId(null);
-  };
-
-  const handleDotClick = (dotId: number) => {
-    const theme = themes.find((theme: Theme) => theme.id === dotId);
-    if (theme) {
-      onThemeSelect(theme);
-    }
-  };
-
-  useEffect(() => {
-    circlesRefs.current = circlesRefs.current.slice(0, dots.length);
-    textsRefs.current = textsRefs.current.slice(0, dots.length);
-
+  const updateAllDots = () => {
     dots.forEach((_, index) => {
       const dotId = index + 1;
-      const circle = circlesRefs.current[index];
-      const text = textsRefs.current[index];
-      const isHovered = hoveredDotId === dotId;
       const isSelected = selectedTheme?.id === dotId;
-
-      if (!isSelected) {
-        if (circle) {
-          gsap.to(circle, {
-            r: isHovered ? selectedDotRadius * 0.9 : dotRadius,
-            fill: isHovered ? '#F4F5F9' : '#42567A',
-            duration: 0.3,
-            ease: 'power2.out',
-          });
-        }
-
-        if (text) {
-          gsap.to(text, {
-            opacity: isHovered ? 1 : 0,
-            duration: 0.3,
-            ease: 'power2.out',
-          });
-        }
-      }
+      const isHovered = hoveredDotId === dotId;
+      animateDot(index, isSelected, isHovered);
     });
-  }, [hoveredDotId, selectedTheme, dots, dotRadius, selectedDotRadius]);
+  };
 
   useEffect(() => {
-    if (selectedTheme) {
-      const targetRotation = (6 - selectedTheme.id) * 60;
+    if (!selectedTheme) return;
+    setHoveredDotId(null);
 
-      gsap.to(
-        { value: rotation },
-        {
-          value: targetRotation,
-          duration: 1,
-          ease: 'power2.inOut',
-          onUpdate: function () {
-            setRotation(this.targets()[0].value);
-          },
+    const newRotation = (6 - selectedTheme.id) * 60;
+    updateAllDots();
+
+    const tl = gsap.timeline();
+    tl.to(
+      { value: rotation },
+      {
+        value: newRotation,
+        duration: 1,
+        ease: 'power2.inOut',
+        onUpdate: function () {
+          setRotation(this.targets()[0].value);
         },
-      );
-    }
+        onComplete: () => {
+          gsap.to(labelRef.current, {
+            opacity: 1,
+            duration: 0.3,
+          });
+        },
+      },
+    );
+
+    gsap.set(labelRef.current, { opacity: 0 });
+
+    return () => {
+      tl.kill();
+      gsap.killTweensOf(labelRef.current);
+    };
   }, [selectedTheme]);
+
+  useEffect(() => {
+    updateAllDots();
+  }, [hoveredDotId]);
 
   const rotatePoint = (dot: Dot, angle: number): { x: number; y: number } => {
     const angleRad = (angle * Math.PI) / 180;
@@ -222,28 +232,26 @@ const DiagramLines: React.FC<DiagramLinesProps> = ({
               className={isSelected ? 'diagram-dot-selected' : 'diagram-dot clickable'}
               cx={rotatedPoint.x}
               cy={rotatedPoint.y}
-              r={isSelected ? selectedDotRadius : isHovered ? selectedDotRadius * 0.9 : dotRadius}
+              r={isSelected || isHovered ? selectedDotRadius : dotRadius}
               fill={isSelected || isHovered ? '#F4F5F9' : '#42567A'}
               stroke={isSelected || isHovered ? 'rgba(48, 62, 88, 0.5)' : 'transparent'}
               strokeWidth={isSelected || isHovered ? '1' : '0'}
-              onClick={() => !isSelected && handleDotClick(dotId)}
-              onMouseEnter={() => !isSelected && handleDotMouseEnter(dotId)}
-              onMouseLeave={() => !isSelected && handleDotMouseLeave()}
+              style={{
+                transition:
+                  'r 0.3s ease-out, fill 0.3s ease-out, stroke 0.3s ease-out, stroke-width 0.3s ease-out',
+              }}
+              onClick={() =>
+                !isSelected && onThemeSelect(themes.find((theme: Theme) => theme.id === dotId)!)
+              }
+              onMouseEnter={() => !isSelected && setHoveredDotId(dotId)}
+              onMouseLeave={() => !isSelected && setHoveredDotId(null)}
             />
 
             <text
               ref={(el) => (textsRefs.current[index] = el)}
               x={rotatedPoint.x}
               y={rotatedPoint.y}
-              textAnchor="middle"
-              dominantBaseline="central"
               className="diagram-dot-number"
-              style={{
-                opacity: isSelected || isHovered ? 1 : 0,
-                fontSize: '16px',
-                fontWeight: 'bold',
-                pointerEvents: 'none',
-              }}
             >
               {dotId}
             </text>
@@ -251,13 +259,11 @@ const DiagramLines: React.FC<DiagramLinesProps> = ({
         );
       })}
 
-      {selectedTheme && (
-        <foreignObject x={labelPosition.x} y={labelPosition.y} width="200" height="60">
-          <div className="theme-label-container">
-            {themes.find((theme: Theme) => theme.id === selectedTheme.id)?.name}
-          </div>
-        </foreignObject>
-      )}
+      <foreignObject x={labelPosition.x} y={labelPosition.y} width="200" height="60">
+        <div ref={labelRef} className="theme-label-container">
+          {selectedTheme?.name}
+        </div>
+      </foreignObject>
     </svg>
   );
 };
